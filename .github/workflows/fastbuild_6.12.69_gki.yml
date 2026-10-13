@@ -292,6 +292,13 @@ jobs:
             echo "已选择无内置KernelSU模式，跳过KernelSU配置..."
           fi
 
+      - name: 应用 BakaSU SUSFS SELinux 兼容补丁
+        if: inputs.susfs_enable && (inputs.ksu_type == 'bakasu' || inputs.ksu_type == 'sukisu')
+        run: |
+          PATCH_FILE="$RUNNER_TEMP/bakasu-susfs-selinux-compat.patch"
+          curl -fLSs "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$GITHUB_SHA/.github/patches/bakasu-susfs-selinux-compat.patch" -o "$PATCH_FILE"
+          git -C kernel_workspace/KernelSU apply --whitespace=nowarn "$PATCH_FILE"
+
       - name: 应用 KernelSU & SUSFS 补丁
         if: inputs.susfs_enable
         run: |
